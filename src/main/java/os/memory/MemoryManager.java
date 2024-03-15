@@ -1,9 +1,14 @@
 package os.memory;
 
+import lombok.extern.slf4j.Slf4j;
 import os.Process;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 
+@Slf4j
 public class MemoryManager {
     private String[] memory;
     private Strategy strategy;
@@ -23,7 +28,6 @@ public class MemoryManager {
         } else if (strategy.equals(Strategy.PAGING)) {
             this.writeUsingPaging(process);
         }
-
     }
 
     private void writeUsingPaging(Process process) {
@@ -37,7 +41,6 @@ public class MemoryManager {
 
     private void writeUsingFirstFit(Process process) {
         Map<String, MemoryAddress> availableSizes = returnAvailableMemorySizes();
-        System.out.println("\n" + availableSizes.size());
 
         if (availableSizes.size() == 1 && memory.length >= process.getSizeInMemory()) {
             for (Map.Entry<String, MemoryAddress> entry : availableSizes.entrySet()) {
@@ -45,25 +48,25 @@ public class MemoryManager {
                 int availableBlockSize = address.getEnd() - address.getStart() + 1;
                 if (availableBlockSize >= process.getSizeInMemory()) {
                     for (int i = address.getStart(); i < address.getStart() + process.getSizeInMemory(); i++) {
+                        log.info("Alocando o processo {} com tamanho {}", process.getId(), process.getSizeInMemory());
                         memory[i] = process.getId();
                     }
                 }
             }
-        }
-        else {
-            System.out.println("\nNÃO FOI POSSÍVEL ALOCAR O PROCESSO");
+        } else {
+            log.error("Não foi possível alocar o processo {} com tamanho {}", process.getId(), process.getSizeInMemory());
         }
 
         for (Map.Entry<String, MemoryAddress> entry : availableSizes.entrySet()) {
-            System.out.println(entry.getKey() + " - " + entry.getValue().getStart() + "," + entry.getValue().getEnd());
+            log.info("Tamanho restante da memória -> {}", (entry.getValue().getEnd() - entry.getValue().getStart()) + 1);
         }
+
         printMemoryStatus();
     }
 
     public Map<String, MemoryAddress> returnAvailableMemorySizes() {
         Map<String, MemoryAddress> availableSizes = new HashMap<>();
         int availableSizeCount = 1;
-
 
         // Verificando se a memória está vazia
         if (Arrays.stream(memory).allMatch(Objects::isNull)) {
@@ -113,7 +116,5 @@ public class MemoryManager {
         for (int i = 0; i < memory.length; i++) {
             System.out.print(memory[i] + " | ");
         }
-
     }
-
 }

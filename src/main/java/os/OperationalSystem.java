@@ -7,7 +7,6 @@ import os.memory.Strategy;
 import java.util.Objects;
 
 public class OperationalSystem {
-
     public static MemoryManager memoryManager;
     public static CpuManager cpuManager;
     public static Schedule schedule;
@@ -31,5 +30,4 @@ public class OperationalSystem {
         }
         return null;
     }
-
 }
