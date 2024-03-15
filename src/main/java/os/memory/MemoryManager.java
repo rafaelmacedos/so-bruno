@@ -42,6 +42,10 @@ public class MemoryManager {
     private void writeUsingFirstFit(Process process) {
         Map<String, MemoryAddress> availableSizes = returnAvailableMemorySizes();
 
+        for (Map.Entry<String, MemoryAddress> entry : availableSizes.entrySet()) {
+            log.info("Tamanho restante da memória -> {}", (entry.getValue().getEnd() - entry.getValue().getStart()) + 1);
+        }
+
         if (availableSizes.size() == 1 && memory.length >= process.getSizeInMemory()) {
             for (Map.Entry<String, MemoryAddress> entry : availableSizes.entrySet()) {
                 MemoryAddress address = entry.getValue();
@@ -55,10 +59,6 @@ public class MemoryManager {
             }
         } else {
             log.error("Não foi possível alocar o processo {} com tamanho {}", process.getId(), process.getSizeInMemory());
-        }
-
-        for (Map.Entry<String, MemoryAddress> entry : availableSizes.entrySet()) {
-            log.info("Tamanho restante da memória -> {}", (entry.getValue().getEnd() - entry.getValue().getStart()) + 1);
         }
 
         printMemoryStatus();
