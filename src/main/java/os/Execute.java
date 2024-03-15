@@ -3,11 +3,11 @@ package os;
 
 public class Execute {
     public static void main(String[] args) {
-        Process p1 = (Process) OperationalSystem.systemCall(SystemCallType.CREATE_PROCESS, null);
-        Process p2 = (Process) OperationalSystem.systemCall(SystemCallType.CREATE_PROCESS, null);
-        Process p3 = (Process) OperationalSystem.systemCall(SystemCallType.CREATE_PROCESS, null);
-        Process p4 = (Process) OperationalSystem.systemCall(SystemCallType.CREATE_PROCESS, null);
-        Process p5 = (Process) OperationalSystem.systemCall(SystemCallType.CREATE_PROCESS, null);
+        var p1 = (Process) OperationalSystem.systemCall(SystemCallType.CREATE_PROCESS, null);
+        var p2 = (Process) OperationalSystem.systemCall(SystemCallType.CREATE_PROCESS, null);
+        var p3 = (Process) OperationalSystem.systemCall(SystemCallType.CREATE_PROCESS, null);
+        var p4 = (Process) OperationalSystem.systemCall(SystemCallType.CREATE_PROCESS, null);
+        var p5 = (Process) OperationalSystem.systemCall(SystemCallType.CREATE_PROCESS, null);
 
         p5.setSizeInMemory(200);
 
