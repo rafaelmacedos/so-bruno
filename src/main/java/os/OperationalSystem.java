@@ -12,7 +12,7 @@ public class OperationalSystem {
     public static Schedule schedule;
 
     public static Object systemCall(SystemCallType type, Process process, Integer sizeInMemory) {
-        if(Objects.isNull(memoryManager)) { memoryManager = new MemoryManager(Strategy.FIRST_FIT);}
+        if(Objects.isNull(memoryManager)) { memoryManager = new MemoryManager(Strategy.BEST_FIT);}
         if(Objects.isNull(cpuManager)) { cpuManager = new CpuManager();}
 
         if(type.equals(SystemCallType.CREATE_PROCESS)) {

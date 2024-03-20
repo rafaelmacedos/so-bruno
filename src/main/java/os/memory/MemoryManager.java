@@ -81,7 +81,31 @@ public class MemoryManager {
     }
 
     private void writeUsingBestFit(Process process) {
+        Map<String, MemoryAddress> availableSizes = returnAvailableMemorySizes();
 
+        if (!availableSizes.isEmpty() && memory.length >= process.getSizeInMemory()) {
+            MemoryAddress bestAddress = null;
+
+            for (Map.Entry<String, MemoryAddress> entry : availableSizes.entrySet()) {
+                MemoryAddress address = entry.getValue();
+                int availableBlockSize = address.getEnd() - address.getStart() + 1;
+
+                if (availableBlockSize >= process.getSizeInMemory() && (bestAddress == null || availableBlockSize < (bestAddress.getEnd() - bestAddress.getStart() + 1))) {
+                    bestAddress = address;
+                }
+            }
+
+            if (bestAddress != null && bestAddress.getEnd() - bestAddress.getStart() + 1 >= process.getSizeInMemory()) {
+                for (int i = bestAddress.getStart(); i < bestAddress.getStart() + process.getSizeInMemory(); i++) {
+                    log.info("Alocando o processo {} com tamanho {}", process.getId(), process.getSizeInMemory());
+                    memory[i] = process.getId();
+                }
+            } else {
+                log.error("Não foi possível alocar o processo {} com tamanho {}, Não existem espaços disponíveis ou o processo tem um tamanho não compatível com a memória", process.getId(), process.getSizeInMemory());
+            }
+        } else {
+            log.error("Não foi possível alocar o processo {} com tamanho {}", process.getId(), process.getSizeInMemory());
+        }
     }
 
     private void writeUsingFirstFit(Process process) {
