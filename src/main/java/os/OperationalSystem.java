@@ -11,12 +11,12 @@ public class OperationalSystem {
     public static CpuManager cpuManager;
     public static Schedule schedule;
 
-    public static Object systemCall(SystemCallType type, Process process) {
+    public static Object systemCall(SystemCallType type, Process process, Integer sizeInMemory) {
         if(Objects.isNull(memoryManager)) { memoryManager = new MemoryManager(Strategy.FIRST_FIT);}
         if(Objects.isNull(cpuManager)) { cpuManager = new CpuManager();}
 
         if(type.equals(SystemCallType.CREATE_PROCESS)) {
-            return new Process();
+            return new Process(sizeInMemory);
         }
         else if(type.equals(SystemCallType.WRITE_PROCESS)) {
             // Escrever o processo
@@ -26,8 +26,12 @@ public class OperationalSystem {
             // Ler processo
         }
         if(type.equals(SystemCallType.DELETE_PROCESS)) {
-            // Deletar processo
+            memoryManager.delete(process);
         }
         return null;
+    }
+
+    public static void showMemory() {
+        memoryManager.printMemoryStatus();
     }
 }

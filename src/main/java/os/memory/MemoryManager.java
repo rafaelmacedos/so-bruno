@@ -30,13 +30,58 @@ public class MemoryManager {
         }
     }
 
+    public void delete(Process process) {
+        for (int i = 0; i < memory.length; i++) {
+            if (Objects.equals(memory[i], process.getId())){
+                memory[i] = null;
+                log.info("DELETANDO DA MEMÓRIA PROCESSO. ID: " + process.getId());
+            }
+        }
+    }
+
     private void writeUsingPaging(Process process) {
     }
 
     private void writeUsingWorstFit(Process process) {
+        Map<String, MemoryAddress> availableSizes = returnAvailableMemorySizes();
+
+        for (Map.Entry<String, MemoryAddress> entry : availableSizes.entrySet()) {
+            log.info("Tamanho restante da memória -> {}", (entry.getValue().getEnd() - entry.getValue().getStart()) + 1);
+        }
+
+        if (!availableSizes.isEmpty() && memory.length >= process.getSizeInMemory()) {
+            Map.Entry<String, MemoryAddress> worstAddress = null;
+            int blockSizeWorst = 0;
+
+            // Obtendo um endereço de memória como parâmetro para validar o pior espaço
+            for (Map.Entry<String, MemoryAddress> entry : availableSizes.entrySet()) {
+                MemoryAddress address = entry.getValue();
+                int availableBlockSize = address.getEnd() - address.getStart() + 1;
+
+                if (availableBlockSize > blockSizeWorst) {
+                    worstAddress = entry;
+                    blockSizeWorst = availableBlockSize;
+                }
+
+            }
+
+            if (blockSizeWorst >= process.getSizeInMemory()) {
+                for (int i = worstAddress.getValue().getStart(); i < worstAddress.getValue().getStart() + process.getSizeInMemory(); i++) {
+                    log.info("Alocando o processo {} com tamanho {}", process.getId(), process.getSizeInMemory());
+                    memory[i] = process.getId();
+                }
+            } else {
+                log.error("Não foi possível alocar o processo {} com tamanho {} no espaço {}", process.getId(), process.getSizeInMemory(), blockSizeWorst);
+            }
+
+        } else {
+            log.error("Não foi possível alocar o processo {} com tamanho {}, Não existem espaços disponíveis ou o processo tem um tamanho não compatível com a memória", process.getId(), process.getSizeInMemory());
+        }
+
     }
 
     private void writeUsingBestFit(Process process) {
+
     }
 
     private void writeUsingFirstFit(Process process) {
@@ -46,22 +91,23 @@ public class MemoryManager {
             log.info("Tamanho restante da memória -> {}", (entry.getValue().getEnd() - entry.getValue().getStart()) + 1);
         }
 
-        if (availableSizes.size() == 1 && memory.length >= process.getSizeInMemory()) {
+        if (!availableSizes.isEmpty() && memory.length >= process.getSizeInMemory()) {
             for (Map.Entry<String, MemoryAddress> entry : availableSizes.entrySet()) {
                 MemoryAddress address = entry.getValue();
                 int availableBlockSize = address.getEnd() - address.getStart() + 1;
+
                 if (availableBlockSize >= process.getSizeInMemory()) {
                     for (int i = address.getStart(); i < address.getStart() + process.getSizeInMemory(); i++) {
                         log.info("Alocando o processo {} com tamanho {}", process.getId(), process.getSizeInMemory());
                         memory[i] = process.getId();
                     }
+                } else {
+                    log.error("Não foi possível alocar o processo {} com tamanho {} no espaço {}", process.getId(), process.getSizeInMemory(), availableBlockSize);
                 }
             }
         } else {
             log.error("Não foi possível alocar o processo {} com tamanho {}", process.getId(), process.getSizeInMemory());
         }
-
-        printMemoryStatus();
     }
 
     public Map<String, MemoryAddress> returnAvailableMemorySizes() {
@@ -112,9 +158,9 @@ public class MemoryManager {
     }
 
 
-    private void printMemoryStatus() {
+    public void printMemoryStatus() {
         for (int i = 0; i < memory.length; i++) {
-            System.out.print(memory[i] + " | ");
+            System.out.println((i + 1) + " | " + memory[i]);
         }
     }
 }
