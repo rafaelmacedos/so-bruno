@@ -125,6 +125,7 @@ public class MemoryManager {
                         log.info("Alocando o processo {} com tamanho {}", process.getId(), process.getSizeInMemory());
                         memory[i] = process.getId();
                     }
+                    break;
                 } else {
                     log.error("Não foi possível alocar o processo {} com tamanho {} no espaço {}", process.getId(), process.getSizeInMemory(), availableBlockSize);
                 }
