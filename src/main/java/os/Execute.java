@@ -50,24 +50,24 @@ public class Execute {
 //        OperationalSystem.systemCall(SystemCallType.WRITE_PROCESS, p10, null);
 //        OperationalSystem.systemCall(SystemCallType.WRITE_PROCESS, p11,  null);
 
-        log.info("CASOS DE TESTE WORST FIT");
-        var p7 = (Process) OperationalSystem.systemCall(SystemCallType.CREATE_PROCESS, null, 1);
-        var p8 = (Process) OperationalSystem.systemCall(SystemCallType.CREATE_PROCESS, null, 1);
-        var p9 = (Process) OperationalSystem.systemCall(SystemCallType.CREATE_PROCESS, null, 18);
-        var p10 = (Process) OperationalSystem.systemCall(SystemCallType.CREATE_PROCESS, null, 17);
-        var p11 = (Process) OperationalSystem.systemCall(SystemCallType.CREATE_PROCESS, null, 5);
-        var p12 = (Process) OperationalSystem.systemCall(SystemCallType.CREATE_PROCESS, null, 3);
-        var p13 = (Process) OperationalSystem.systemCall(SystemCallType.CREATE_PROCESS, null, 2);
-        var p14 = (Process) OperationalSystem.systemCall(SystemCallType.CREATE_PROCESS, null, 1);
-
-        OperationalSystem.systemCall(SystemCallType.WRITE_PROCESS, p7, null);
-        OperationalSystem.systemCall(SystemCallType.WRITE_PROCESS, p8, null);
-        OperationalSystem.systemCall(SystemCallType.WRITE_PROCESS, p9, null);
-        OperationalSystem.systemCall(SystemCallType.WRITE_PROCESS, p10, null);
-        OperationalSystem.systemCall(SystemCallType.WRITE_PROCESS, p11, null);
-        OperationalSystem.systemCall(SystemCallType.WRITE_PROCESS, p12, null);
-        OperationalSystem.systemCall(SystemCallType.WRITE_PROCESS, p13, null);
-        OperationalSystem.systemCall(SystemCallType.WRITE_PROCESS, p14, null);
+//        log.info("CASOS DE TESTE WORST FIT");
+//        var p7 = (Process) OperationalSystem.systemCall(SystemCallType.CREATE_PROCESS, null, 1);
+//        var p8 = (Process) OperationalSystem.systemCall(SystemCallType.CREATE_PROCESS, null, 1);
+//        var p9 = (Process) OperationalSystem.systemCall(SystemCallType.CREATE_PROCESS, null, 18);
+//        var p10 = (Process) OperationalSystem.systemCall(SystemCallType.CREATE_PROCESS, null, 17);
+//        var p11 = (Process) OperationalSystem.systemCall(SystemCallType.CREATE_PROCESS, null, 5);
+//        var p12 = (Process) OperationalSystem.systemCall(SystemCallType.CREATE_PROCESS, null, 3);
+//        var p13 = (Process) OperationalSystem.systemCall(SystemCallType.CREATE_PROCESS, null, 2);
+//        var p14 = (Process) OperationalSystem.systemCall(SystemCallType.CREATE_PROCESS, null, 1);
+//
+//        OperationalSystem.systemCall(SystemCallType.WRITE_PROCESS, p7, null);
+//        OperationalSystem.systemCall(SystemCallType.WRITE_PROCESS, p8, null);
+//        OperationalSystem.systemCall(SystemCallType.WRITE_PROCESS, p9, null);
+//        OperationalSystem.systemCall(SystemCallType.WRITE_PROCESS, p10, null);
+//        OperationalSystem.systemCall(SystemCallType.WRITE_PROCESS, p11, null);
+//        OperationalSystem.systemCall(SystemCallType.WRITE_PROCESS, p12, null);
+//        OperationalSystem.systemCall(SystemCallType.WRITE_PROCESS, p13, null);
+//        OperationalSystem.systemCall(SystemCallType.WRITE_PROCESS, p14, null);
 
         OperationalSystem.showMemory();
     }
