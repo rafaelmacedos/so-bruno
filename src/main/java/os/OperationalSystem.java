@@ -1,32 +1,47 @@
 package os;
 
-import os.cpu.CpuManager;
 import os.memory.MemoryManager;
-import os.memory.Strategy;
+import os.scheduler.FCFS;
+import os.scheduler.Scheduler;
 
+import java.util.List;
 import java.util.Objects;
 
+
 public class OperationalSystem {
-    public static MemoryManager memoryManager;
-    public static CpuManager cpuManager;
-    public static Schedule schedule;
 
-    public static Object systemCall(SystemCallType type, Process process, Integer sizeInMemory) {
-        if(Objects.isNull(memoryManager)) { memoryManager = new MemoryManager(Strategy.WORST_FIT);}
-        if(Objects.isNull(cpuManager)) { cpuManager = new CpuManager();}
+    private static MemoryManager memoryManager;
+    private static Scheduler scheduler;
 
-        if(type.equals(SystemCallType.CREATE_PROCESS)) {
-            return new Process(sizeInMemory);
+    public static OsProcess systemCall(SystemCallType type, int processSize) {
+        switch (type) {
+            case CREATE_PROCESS:
+                if (Objects.isNull(memoryManager)) {
+                    memoryManager = new MemoryManager();
+                }
+                if (Objects.isNull(scheduler)) {
+                    scheduler = new FCFS();
+                }
+                return new OsProcess(processSize);
+            default:
+                return null;
         }
-        else if(type.equals(SystemCallType.WRITE_PROCESS)) {
-            // Escrever o processo
-            memoryManager.write(process);
-        }
-        if(type.equals(SystemCallType.READ_PROCESS)) {
-            // Ler processo
-        }
-        if(type.equals(SystemCallType.DELETE_PROCESS)) {
-            memoryManager.delete(process);
+    }
+
+    public static List<SubProcess> systemCall(SystemCallType type, OsProcess p) {
+        switch (type) {
+            case WRITE_PROCESS:
+                memoryManager.write(p);
+                scheduler.execute(p);
+                break;
+            case DELETE_PROCESS:
+                memoryManager.delete(p);
+                scheduler.finish(p);
+                break;
+            case READ_PROCESS:
+                return memoryManager.read(p);
+            default:
+                return null;
         }
         return null;
     }
@@ -35,3 +50,4 @@ public class OperationalSystem {
         memoryManager.printMemoryStatus();
     }
 }
+

@@ -13,4 +13,8 @@ public class MemoryAddress {
         this.start = start;
         this.end = end;
     }
+
+    public int size() {
+        return (end - start) + 1;
+    }
 }

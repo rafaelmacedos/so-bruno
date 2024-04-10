@@ -1,191 +1,113 @@
 package os.memory;
 
-import lombok.extern.slf4j.Slf4j;
-import os.Process;
+import java.util.ArrayList;
+import java.util.List;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import os.OsProcess;
+import os.SubProcess;
 
-@Slf4j
 public class MemoryManager {
-    private String[] memory;
-    private Strategy strategy;
+    private static final int INSTRUCTIONS_PER_PROCESS = 7;
+    private List<List<SubProcess>> physicalMemory;
+    private int pageSize;
+    private int totalPages;
 
-    public MemoryManager(Strategy strategy) {
-        this.memory = new String[128];
-        this.strategy = strategy;
-    }
-
-    public void write(Process process) {
-        if (strategy.equals(Strategy.FIRST_FIT)) {
-            this.writeUsingFirstFit(process);
-        } else if (strategy.equals(Strategy.BEST_FIT)) {
-            this.writeUsingBestFit(process);
-        } else if (strategy.equals(Strategy.WORST_FIT)) {
-            this.writeUsingWorstFit(process);
-        } else if (strategy.equals(Strategy.PAGING)) {
-            this.writeUsingPaging(process);
+    public MemoryManager(int pageSize, int physicalMemorySize) {
+        this.pageSize = pageSize;
+        this.totalPages = physicalMemorySize / pageSize;
+        this.physicalMemory = new ArrayList<>(totalPages);
+        for (int i = 0; i < totalPages; i++) {
+            this.physicalMemory.add(new ArrayList<>(pageSize));
         }
     }
 
-    public void delete(Process process) {
-        for (int i = 0; i < memory.length; i++) {
-            if (Objects.equals(memory[i], process.getId())){
-                memory[i] = null;
-                log.info("DELETANDO DA MEMÓRIA PROCESSO. ID: " + process.getId());
+    public MemoryManager() {
+        this(4, 256);
+    }
+
+    public void write(OsProcess p) {
+        List<SubProcess> subProcesses = createSubProcesses(p);
+        allocateSubProcesses(subProcesses);
+        printMemoryStatus();
+    }
+
+    private List<SubProcess> createSubProcesses(OsProcess p) {
+        List<SubProcess> subProcesses = new ArrayList<>();
+        List<String> subProcessIds = p.getSubProcesses();
+        for (String subProcessId : subProcessIds) {
+            subProcesses.add(new SubProcess(subProcessId, INSTRUCTIONS_PER_PROCESS));
+        }
+        return subProcesses;
+    }
+
+    private void allocateSubProcesses(List<SubProcess> subProcesses) {
+        int currentFrame = 0;
+
+        for (int currentPage = 0; currentPage < totalPages; currentPage++) {
+            List<SubProcess> page = physicalMemory.get(currentPage);
+            for (int j = 0; j < pageSize; j++) {
+                if (currentFrame >= subProcesses.size()) {
+                    return; // Todos os sub-processos foram alocados
+                }
+                if (j < page.size()) {
+                    continue; // A página já está ocupada, passa para a próxima posição
+                }
+                page.add(subProcesses.get(currentFrame++));
             }
         }
     }
 
-    private void writeUsingPaging(Process process) {
-    }
 
-    private void writeUsingWorstFit(Process process) {
-        Map<String, MemoryAddress> availableSizes = returnAvailableMemorySizes();
-
-        for (Map.Entry<String, MemoryAddress> entry : availableSizes.entrySet()) {
-            log.info("Tamanho restante da memória -> {}", (entry.getValue().getEnd() - entry.getValue().getStart()) + 1);
-        }
-
-        if (!availableSizes.isEmpty() && memory.length >= process.getSizeInMemory()) {
-            Map.Entry<String, MemoryAddress> worstAddress = null;
-            int blockSizeWorst = 0;
-
-            // Obtendo um endereço de memória como parâmetro para validar o pior espaço
-            for (Map.Entry<String, MemoryAddress> entry : availableSizes.entrySet()) {
-                MemoryAddress address = entry.getValue();
-                int availableBlockSize = address.getEnd() - address.getStart() + 1;
-
-                if (availableBlockSize > blockSizeWorst) {
-                    worstAddress = entry;
-                    blockSizeWorst = availableBlockSize;
-                }
-
-            }
-
-            if (blockSizeWorst >= process.getSizeInMemory()) {
-                for (int i = worstAddress.getValue().getStart(); i < worstAddress.getValue().getStart() + process.getSizeInMemory(); i++) {
-                    log.info("Alocando o processo {} com tamanho {}", process.getId(), process.getSizeInMemory());
-                    memory[i] = process.getId();
-                }
+    public List<SubProcess> read(OsProcess p) {
+        List<SubProcess> subProcesses = new ArrayList<>();
+        List<String> subProcessIds = p.getSubProcesses();
+        for (String subProcessId : subProcessIds) {
+            SubProcess subProcess = findSubProcess(subProcessId);
+            if (subProcess != null) {
+                subProcesses.add(subProcess);
             } else {
-                log.error("Não foi possível alocar o processo {} com tamanho {} no espaço {}", process.getId(), process.getSizeInMemory(), blockSizeWorst);
+                System.out.println("SubProcesso " + subProcessId + " não encontrado na memória física.");
             }
-
-        } else {
-            log.error("Não foi possível alocar o processo {} com tamanho {}, Não existem espaços disponíveis ou o processo tem um tamanho não compatível com a memória", process.getId(), process.getSizeInMemory());
         }
-
+        return subProcesses;
     }
 
-    private void writeUsingBestFit(Process process) {
-        Map<String, MemoryAddress> availableSizes = returnAvailableMemorySizes();
-
-        if (!availableSizes.isEmpty() && memory.length >= process.getSizeInMemory()) {
-            MemoryAddress bestAddress = null;
-
-            for (Map.Entry<String, MemoryAddress> entry : availableSizes.entrySet()) {
-                MemoryAddress address = entry.getValue();
-                int availableBlockSize = address.getEnd() - address.getStart() + 1;
-
-                if (availableBlockSize >= process.getSizeInMemory() && (bestAddress == null || availableBlockSize < (bestAddress.getEnd() - bestAddress.getStart() + 1))) {
-                    bestAddress = address;
+    private SubProcess findSubProcess(String subProcessId) {
+        for (List<SubProcess> page : physicalMemory) {
+            for (SubProcess subProcess : page) {
+                if (subProcess != null && subProcess.getId().equals(subProcessId)) {
+                    return subProcess;
                 }
             }
-
-            if (bestAddress != null && bestAddress.getEnd() - bestAddress.getStart() + 1 >= process.getSizeInMemory()) {
-                for (int i = bestAddress.getStart(); i < bestAddress.getStart() + process.getSizeInMemory(); i++) {
-                    log.info("Alocando o processo {} com tamanho {}", process.getId(), process.getSizeInMemory());
-                    memory[i] = process.getId();
-                }
-            } else {
-                log.error("Não foi possível alocar o processo {} com tamanho {}, Não existem espaços disponíveis ou o processo tem um tamanho não compatível com a memória", process.getId(), process.getSizeInMemory());
-            }
-        } else {
-            log.error("Não foi possível alocar o processo {} com tamanho {}", process.getId(), process.getSizeInMemory());
         }
+        return null;
     }
 
-    private void writeUsingFirstFit(Process process) {
-        Map<String, MemoryAddress> availableSizes = returnAvailableMemorySizes();
+    public void delete(OsProcess process) {
+        System.out.println("Removendo processo da memória: " + process.getId());
 
-        for (Map.Entry<String, MemoryAddress> entry : availableSizes.entrySet()) {
-            log.info("Tamanho restante da memória -> {}", (entry.getValue().getEnd() - entry.getValue().getStart()) + 1);
-        }
-
-        if (!availableSizes.isEmpty() && memory.length >= process.getSizeInMemory()) {
-            for (Map.Entry<String, MemoryAddress> entry : availableSizes.entrySet()) {
-                MemoryAddress address = entry.getValue();
-                int availableBlockSize = address.getEnd() - address.getStart() + 1;
-
-                if (availableBlockSize >= process.getSizeInMemory()) {
-                    for (int i = address.getStart(); i < address.getStart() + process.getSizeInMemory(); i++) {
-                        log.info("Alocando o processo {} com tamanho {}", process.getId(), process.getSizeInMemory());
-                        memory[i] = process.getId();
-                    }
-                    break;
-                } else {
-                    log.error("Não foi possível alocar o processo {} com tamanho {} no espaço {}", process.getId(), process.getSizeInMemory(), availableBlockSize);
-                }
-            }
-        } else {
-            log.error("Não foi possível alocar o processo {} com tamanho {}", process.getId(), process.getSizeInMemory());
-        }
-    }
-
-    public Map<String, MemoryAddress> returnAvailableMemorySizes() {
-        Map<String, MemoryAddress> availableSizes = new HashMap<>();
-        int availableSizeCount = 1;
-
-        // Verificando se a memória está vazia
-        if (Arrays.stream(memory).allMatch(Objects::isNull)) {
-            MemoryAddress currentAddress = new MemoryAddress(0, memory.length - 1);
-            availableSizes.put("MemorySize" + availableSizeCount, currentAddress);
-            availableSizeCount++;
-            return availableSizes;
-        } else {
-            Integer start = null;
-            Integer end = null;
-            for (int i = 0; i < memory.length; i++) {
-                // Verificando se o espaço está vazio, se estiver um novo intervalo se inicia.
-                if (memory[i] == null) {
-                    if (start == null) {
-                        start = i;
-                    }
-                    // Verificando se o é o último intervalo da memória, assim criando um novo endereço dispnível.
-                    if (i == memory.length - 1) {
-                        end = i;
-                        MemoryAddress currentAddress = new MemoryAddress(start, end);
-                        availableSizes.put("MemorySize" + availableSizeCount, currentAddress);
-                        availableSizeCount++;
-                        start = null;
-                        end = null;
-                    }
-                }
-                // Se não estiver vazio, o intervalo se acaba e um novo endereço disponível é salvo.
-                else {
-                    if (start != null) {
-                        end = i - 1;
-                        MemoryAddress currentAddress = new MemoryAddress(start, end);
-                        availableSizes.put("MemorySize" + availableSizeCount, currentAddress);
-                        availableSizeCount++;
-                        start = null;
-                        end = null;
-                    }
-
+        for (List<SubProcess> page : physicalMemory) {
+            for (int j = 0; j < page.size(); j++) {
+                SubProcess sp = page.get(j);
+                if (sp != null && sp.getId().equals(process.getId())) {
+                    page.set(j, null);
                 }
             }
         }
 
-        return availableSizes;
+        System.out.println("Processo removido com sucesso");
+        printMemoryStatus();
     }
-
 
     public void printMemoryStatus() {
-        for (int i = 0; i < memory.length; i++) {
-            System.out.println((i + 1) + " | " + memory[i]);
+        System.out.println("Estado da memória:");
+        for (int i = 0; i < totalPages; i++) {
+            for (int j = 0; j < pageSize; j++) {
+                SubProcess sp = (j < physicalMemory.get(i).size()) ? physicalMemory.get(i).get(j) : null;
+                String spId = (sp != null) ? sp.getId() : "null";
+                System.out.printf("| %-5s ", spId);
+            }
+            System.out.println("|");
         }
     }
 }
