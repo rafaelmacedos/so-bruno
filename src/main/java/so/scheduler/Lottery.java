@@ -60,5 +60,6 @@ public class Lottery extends Scheduler {
     @Override
     public void add(SoProcess p) {
         this.processQueue.add(p);
+        System.out.println(processQueue);
     }
 }

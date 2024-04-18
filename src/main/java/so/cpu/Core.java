@@ -15,6 +15,7 @@ public class Core implements Runnable {
 
 	public Core(int id) {
 		this(7, id);
+
 	}
 
 	public SubProcess getActuallySubProcess() {

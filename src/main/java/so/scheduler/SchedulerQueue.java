@@ -22,8 +22,13 @@ public class SchedulerQueue extends Scheduler {
     public void add(SoProcess p) {
         processQueue.add(p);
         for (SubProcess subProcess : SystemOperation.systemCall(SystemCallType.READ_PROCESS, p)) {
-			subProcessQueue.add(subProcess);
-		}
+            subProcessQueue.add(subProcess);
+        }
+        if (!subProcessQueue.isEmpty()) {
+            System.out.println("Fila de processos após adicionar os processos: \n" + processQueue.toString());
+        } else {
+            System.out.println("Fila de processos esta vazia.");
+        }
     }
 
     @Override

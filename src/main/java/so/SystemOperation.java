@@ -22,9 +22,9 @@ public class SystemOperation {
 
                 if (scheduler == null) {
 //                    scheduler = new FCFS();
-//                    scheduler = new Lottery();
+                  scheduler = new Lottery();
 //                    scheduler = new Priority();
-                    scheduler = new SJF();
+//                    scheduler = new SJF();
                 }
 
                 return new SoProcess(processSize, timeToExecute);
@@ -33,25 +33,25 @@ public class SystemOperation {
         }
     }
 
-    public static SoProcess systemCall(SystemCallType type, Integer processSize, Integer timeToExecute, PriorityEnum priority) {
-        switch (type) {
-            case CREATE_PROCESS:
-                if (mm == null) {
-                    mm = new MemoryManager(4, 256);
-                }
-
-                if (scheduler == null) {
-//                    scheduler = new FCFS();
-//                    scheduler = new Lottery();
+//    public static SoProcess systemCall(SystemCallType type, Integer processSize, Integer timeToExecute, PriorityEnum priority) {
+//        switch (type) {
+//            case CREATE_PROCESS:
+//                if (mm == null) {
+//                    mm = new MemoryManager(4, 256);
+//                }
+//
+//                if (scheduler == null) {
+////                    scheduler = new FCFS();
+////                    scheduler = new Lottery();
 //                    scheduler = new Priority();
-                    scheduler = new SJF();
-                }
-
-                return new SoProcess(processSize, timeToExecute, priority);
-            default:
-                return null;
-        }
-    }
+////                    scheduler = new SJF();
+//                }
+//
+//                return new SoProcess(processSize, timeToExecute, priority);
+//            default:
+//                return null;
+//        }
+//    }
 
     public static List<SubProcess> systemCall(SystemCallType type, SoProcess p) {
         switch (type) {

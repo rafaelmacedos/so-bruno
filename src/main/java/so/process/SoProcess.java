@@ -4,7 +4,8 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
-import java.util.random.RandomGenerator;
+
+//import so.memory.AdressMemory;
 
 public class SoProcess {
 	private int sizeInMemory;
@@ -20,17 +21,18 @@ public class SoProcess {
 	private static int count;
 
 	public SoProcess(int sizeInMemory, Integer timeToExecute) {
-		var random = new Random();
+		Random random = new Random();
 		var randomPriority = random.nextInt(MINIMUM_PRIORITY, MAXIMUM_PRIORITY + 1);
 
 		count++;
-		this.id = "P" + count ;
+		this.id = "P" + count;
 		this.sizeInMemory = sizeInMemory;
 		this.subProcesses = this.getSubProcesses();
 
 		var priorities = PriorityEnum.values();
 
-		this.priority = Arrays.stream(priorities).filter(priorityEnum -> priorityEnum.getValue() == randomPriority).findFirst().get();
+		this.priority = Arrays.stream(priorities).filter(priorityEnum -> priorityEnum.getValue() == randomPriority)
+				.findFirst().get();
 		System.out.println(id + " - Prioridade -> " + priority.getValue());
 
 		this.numberOfInstructions = this.subProcesses.size() * 7;
@@ -40,7 +42,7 @@ public class SoProcess {
 
 	public SoProcess(int sizeInMemory, Integer timeToExecute, PriorityEnum priority) {
 		count++;
-		this.id = "P" + count ;
+		this.id = "P" + count;
 		this.sizeInMemory = sizeInMemory;
 		this.subProcesses = this.getSubProcesses();
 
@@ -55,7 +57,7 @@ public class SoProcess {
 		if (this.subProcesses == null || this.subProcesses.isEmpty()) {
 			List<String> sp = new LinkedList<>();
 			for (int i = 0; i < this.getSizeInMemory(); i++) {
-				sp.add(this.getId() + ( "-SP" + i ));
+				sp.add(this.getId() + ("-SP" + i));
 			}
 			this.subProcesses = sp;
 		}
@@ -111,12 +113,25 @@ public class SoProcess {
 		this.numberOfInstructions = numberOfInstructions;
 	}
 
+	//PRIMEIRO
 	@Override
 	public String toString() {
-		return "SoProcess{" +
-				"sizeInMemory=" + sizeInMemory +
-				", id='" + id + '\'' +
-				", priority=" + priority +
-				'}';
+		return "Id - " + id +
+				"| Número de processos - " + sizeInMemory + "\n"
+				;
 	}
+	
+	//SEGUNDO
+//	@Override
+//	public String toString() {
+//		return "Id - " + id + "| Número de processos - " + sizeInMemory  + "| Priority - " + priority + "\n";
+//	}
+	
+	//TERCEIRO
+//	@Override
+//	public String toString() {
+//		return "Id - " + id +
+//				"| Número de processos - " + sizeInMemory + "|Tempo de execução: " + timeToExecute +"\n"
+//				;
+//	}
 }

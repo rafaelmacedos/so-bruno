@@ -9,7 +9,7 @@ import so.scheduler.Scheduler;
 public class CpuManager {
 	private Scheduler scheduler;
 	private Core[] cores;
-	public static int CLOCK = 1000;
+	public static int CLOCK = 500;
 	public static int NUMBER_OF_CORES = 4;
 	public static int NUMBER_OF_INSTRUCTIONS_PER_CLOCK = 7;
 
@@ -33,8 +33,8 @@ public class CpuManager {
 		time.scheduleAtFixedRate(new TimerTask() {
 			@Override
 			public void run() {
+				
 				executeProcesses();
-
 			}
 
 		}, 0, CLOCK);

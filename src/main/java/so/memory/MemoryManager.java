@@ -9,11 +9,11 @@ import so.process.SubProcess;
 
 public class MemoryManager {
     private SubProcess[][] memoryPhysical;
-    private Strategy strategy;
-    private int sizePage;
     private Hashtable<String, FrameMemory> memoryLogical;
-    private static int INSTRUCTIONS_PER_PROCESS = 7;
+    private int sizePage;
+    private static final int INSTRUCTIONS_PER_PROCESS = 7;
 
+    
     public MemoryManager(int sizePage, int physicalMemory) {
         int pages = physicalMemory / sizePage;
         this.memoryPhysical = new SubProcess[pages][sizePage];
@@ -33,7 +33,7 @@ public class MemoryManager {
             int cont2 = 0;
             for (int i = 0; i < frames.size(); i++) {
                 int indexFrame = frames.get(i);
-                SubProcess pages[] = this.memoryPhysical[indexFrame];
+                SubProcess[] pages = this.memoryPhysical[indexFrame];
                 int cont = 0;
                 while (cont < pages.length && cont2 < p.getSizeInMemory()) {
                     String subProcessesIds = p.getSubProcesses().get(cont2);
@@ -43,11 +43,12 @@ public class MemoryManager {
                     cont2++;
                 }
             }
+            printMemoryState();
         } else {
-            System.out.println("Sem memória");
+            System.out.println("Sem memória disponível o suficiente para processar.");
+            // Adicione aqui um registro de log para indicar a falta de memória
         }
 
-        printMemoryState();
     }
 
     private List<Integer> findPages(SoProcess p) {
@@ -63,14 +64,11 @@ public class MemoryManager {
     private void printMemoryState() {
         System.out.println("|----------------------- MEMORIA -----------------------|\n");
 
-        for (int i = 0; i < memoryPhysical.length; i++) {
-            for (int j = 0; j < this.memoryPhysical[i].length; j++) {
-                SubProcess sp = this.memoryPhysical[i][j];
-                String spId = null;
-                if (sp != null) {
-                    spId = sp.getId();
-                }
-                if (j == this.memoryPhysical[i].length - 1) {
+        for (SubProcess[] processes : memoryPhysical) {
+            for (int j = 0; j < processes.length; j++) {
+                SubProcess sp = processes[j];
+                String spId = (sp != null) ? sp.getId() : null;
+                if (j == processes.length - 1) {
                     System.out.println(spId);
                     System.out.println();
                 } else {
@@ -78,6 +76,7 @@ public class MemoryManager {
                 }
             }
         }
+        System.out.println("|------------------------------------------------------|\n");
     }
 
     public List<SubProcess> read(SoProcess p) {
@@ -98,5 +97,4 @@ public class MemoryManager {
         }
         return sps;
     }
-
 }

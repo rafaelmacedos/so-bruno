@@ -35,9 +35,10 @@ public class SJF extends Scheduler {
     }
 
     @Override
-    public void add(SoProcess p) {
-        this.processQueue.add(p);
-    }
+	public void add(SoProcess p) {
+		this.processQueue.add(p);
+		System.out.println(processQueue);
+	}
 
     private void orderByNumberOfInstructions() {
         Comparator<SoProcess> comparator = (p1, p2) -> {
